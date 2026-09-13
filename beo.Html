@@ -1,0 +1,553 @@
+<!doctype html><html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <title>UNIMATE // CUTEO X AURA</title>
+    <style>
+      :root {
+        --bg-color: #09090b;
+        --card-bg: #121824;
+        --accent-cyan: #00f0ff;
+        --accent-purple: #8a2eff;
+        --accent-red: #ff004c;
+        --accent-blue-glow: #38bdf8;
+        --text-main: #f8fafc;
+        --text-sub: #94a3b8;
+        --border-color: #1e3a8a;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+        padding-bottom: 90px;
+      }
+      /* Splash Screen / Lobby */
+      #splashScreen {
+        position: fixed; inset: 0; background: radial-gradient(circle at center, #0c4a6e 0%, #09090b 80%); z-index: 99999;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        transition: opacity 0.6s ease, visibility 0.6s ease;
+      }
+      #splashScreen.fade-out { opacity: 0; visibility: hidden; }
+      @keyframes auraPulse {
+        0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(56,189,248,0.6)); }
+        50% { transform: scale(1.06); filter: drop-shadow(0 0 30px rgba(0,240,255,0.9)); }
+      }
+      .splash-logo-box {
+        width: 150px; height: 150px; border-radius: 50%; border: 3px solid var(--accent-cyan);
+        background: rgba(14, 165, 233, 0.15); display: flex; align-items: center; justify-content: center;
+        animation: auraPulse 1.8s infinite ease-in-out; overflow: hidden;
+      }
+      .splash-logo-box img { width: 100%; height: 100%; object-fit: cover; }
+      .brand-greeting {
+        display: flex; align-items: center; margin-top: 24px; gap: 12px;
+        background: rgba(18, 24, 36, 0.95); padding: 12px 20px; border-radius: 16px;
+        border: 1px solid var(--accent-cyan); box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      }
+      .brand-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--accent-cyan); object-fit: cover; }
+      .brand-bubble { font-size: 0.9rem; color: #cbd5e1; font-weight: 600; }
+      .brand-bubble span { color: var(--accent-cyan); }
+
+      /* App Layout */
+      .app { max-width: 600px; margin: 0 auto; padding: 16px; }
+      .main-header { display: flex; justify-content: center; margin-bottom: 16px; }
+      .brand-gif { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; border: 1.5px solid var(--accent-cyan); }
+
+      .home-hero { width: 100%; border-radius: 14px; overflow: hidden; margin-bottom: 16px; border: 1px solid var(--border-color); }
+      .home-hero-img { width: 100%; display: block; max-height: 160px; object-fit: cover; }
+      
+      .profile-card {
+        background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px;
+        padding: 20px; text-align: center; margin-bottom: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      }
+      .profile-avatar img { width: 75px; height: 75px; border-radius: 50%; border: 2.5px solid var(--accent-cyan); margin-bottom: 10px; object-fit: cover; box-shadow: 0 0 15px rgba(0,240,255,0.4); }
+      .profile-body h2 { font-size: 1.3rem; margin-bottom: 2px; color: var(--text-main); }
+      .admin-tag { color: var(--accent-cyan); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.8px; margin-bottom: 4px; text-transform: uppercase; }
+      .profile-body p { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 16px; }
+      .profile-links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .profile-btn {
+        background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #fff;
+        padding: 10px; border-radius: 10px; text-decoration: none; font-size: 0.8rem; font-weight: 600; transition: 0.2s;
+      }
+      .profile-btn:hover { background: rgba(0,240,255,0.15); border-color: var(--accent-cyan); }
+
+      /* Premium Features */
+      .premium-banner {
+        background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px;
+        padding: 18px; margin-bottom: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      }
+      .premium-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+      .premium-icon svg { width: 26px; height: 26px; fill: url(#crownGradient); }
+      .premium-title { font-size: 0.95rem; font-weight: 700; color: var(--accent-cyan); letter-spacing: 0.5px; }
+      
+      .feature-grid { display: flex; flex-direction: column; gap: 12px; }
+      .feature-item {
+        display: flex; justify-content: space-between; align-items: center;
+        background: rgba(9,9,11,0.5); border: 1px solid var(--border-color); padding: 12px 14px; border-radius: 12px;
+      }
+      .feature-name { font-size: 0.88rem; font-weight: 600; }
+      .feature-sub { font-size: 0.72rem; color: var(--text-sub); margin-top: 2px; }
+
+      /* Toggle Switch */
+      .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+      .toggle input { opacity: 0; width: 0; height: 0; }
+      .switch {
+        position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #27272a; transition: .3s; border-radius: 24px;
+      }
+      .switch:before {
+        position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+        background-color: white; transition: .3s; border-radius: 50%;
+      }
+      input:checked + .switch { background-color: var(--accent-cyan); }
+      input:checked + .switch:before { transform: translateX(20px); }
+
+      /* Realtime Monitor */
+      .is-hidden { display: none !important; }
+      .panel { background: rgba(9,9,11,0.6); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+      .panelHead { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+      .panelHead .name { font-size: 0.88rem; font-weight: 600; color: var(--accent-cyan); }
+      .meta { display: flex; gap: 6px; flex-wrap: wrap; }
+      .badge { background: rgba(255,255,255,0.08); padding: 3px 7px; border-radius: 6px; font-size: 0.7rem; }
+      .panelBody { padding: 14px; }
+      .chartBox { margin-bottom: 12px; }
+      .chartTop { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-sub); margin-bottom: 4px; }
+      canvas { width: 100%; height: 100px; background: #050507; border-radius: 8px; border: 1px solid var(--border-color); display: block; }
+      
+      .controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .controls button {
+        background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: #fff;
+        padding: 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+      }
+      .controls button:hover { background: rgba(0,240,255,0.2); border-color: var(--accent-cyan); }
+      .toggleOn { color: var(--accent-cyan) !important; border-color: var(--accent-cyan) !important; }
+
+      .consoleView {
+        height: 120px; background: #050507; border: 1px solid var(--border-color); border-radius: 8px;
+        padding: 8px; font-family: monospace; font-size: 0.68rem; overflow-y: auto; color: #34d399; margin-bottom: 8px; line-height: 1.4;
+      }
+      .consoleInput { display: flex; gap: 8px; }
+      .consoleInput input {
+        flex: 1; background: #050507; border: 1px solid var(--border-color); color: #fff; padding: 8px 12px;
+        border-radius: 8px; font-size: 0.78rem; outline: none;
+      }
+      .consoleInput button {
+        background: var(--accent-cyan); color: #000; border: none; padding: 0 14px; border-radius: 8px; font-weight: 700; cursor: pointer;
+      }
+
+      /* Booster page */
+      .booster-title { font-size: 1.05rem; margin-bottom: 12px; color: var(--accent-red); font-weight: 700; }
+      .booster-item {
+        display: flex; align-items: center; justify-content: space-between;
+        background: rgba(9,9,11,0.6); border: 1px solid var(--border-color); padding: 12px 14px; border-radius: 12px; margin-bottom: 10px;
+      }
+      .booster-item img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+      .booster-item span { font-weight: 600; font-size: 0.88rem; flex: 1; margin-left: 12px; }
+      .red { background: var(--accent-red); color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
+      /* Crosshair sliders */
+      .slider-box { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+      input[type="range"] { accent-color: var(--accent-cyan); width: 100%; }
+
+      /* Bottom Nav */
+      .bottom-nav {
+        position: fixed; bottom: 0; left: 0; right: 0; background: rgba(18, 24, 36, 0.95);
+        backdrop-filter: blur(10px); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around;
+        padding: 8px 0; z-index: 1000; max-width: 600px; margin: 0 auto;
+      }
+      .bottom-item {
+        display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--text-sub); font-size: 0.7rem; gap: 3px;
+        cursor: pointer; flex: 1;
+      }
+      .bottom-item.is-active { color: var(--accent-cyan); }
+      .bottom-icon svg { width: 20px; height: 20px; fill: currentColor; }
+
+      /* Modal */
+      .modal-backdrop {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: none;
+      }
+      .modal {
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: var(--card-bg); border: 1px solid var(--accent-red); border-radius: 16px;
+        padding: 20px; width: 85%; max-width: 300px; z-index: 10000; text-align: center; display: none;
+      }
+      .modal-icon { font-size: 1.8rem; color: var(--accent-red); margin-bottom: 6px; }
+      .modal-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+      .modal-text { font-size: 0.78rem; color: var(--text-sub); }
+
+      /* Crosshair Overlay visual */
+      #crosshairOverlay {
+        position: fixed; inset: 0; pointer-events: none; z-index: 9998; display: none;
+      }
+      .ch-graphic {
+        position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center;
+      }
+      .ch-dot { width: 12px; height: 12px; background: #ff004c; border-radius: 50%; box-shadow: 0 0 8px #ff004c; }
+    </style>
+  </head>
+  <body>
+
+    <!-- SPLASH SCREEN / LOBBY (CUTEO X AURA BLUE VIBE) -->
+    <div id="splashScreen">
+      <div class="splash-logo-box">
+        <img src="https://i.ibb.co/HTkB6GZB/IMG-8479.jpg" alt="CUTEO X AURA" />
+      </div>
+      <div class="brand-greeting">
+        <img class="brand-avatar" src="https://i.ibb.co/HTkB6GZB/IMG-8479.jpg" alt="Logo" />
+        <div class="brand-bubble">
+          <span>CUTEO X AURA</span> // Hệ thống sẵn sàng!
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div class="app">
+      <div class="main-header">
+        <img class="brand-gif" src="https://i.ibb.co/HTkB6GZB/IMG-8479.jpg" alt="UNIMATE Brand" />
+      </div>
+
+      <!-- HOME SECTION -->
+      <section class="home-section" id="homeSection">
+        <div class="home-hero">
+          <img class="home-hero-img" src="https://i.ibb.co/jvgcHwTL/IMG-8478.jpg" alt="Home banner" />
+        </div>
+        <article class="profile-card">
+          <div class="profile-avatar">
+            <img src="https://i.ibb.co/HTkB6GZB/IMG-8479.jpg" alt="UNIMATE" />
+          </div>
+          <div class="profile-body">
+            <h2>UNIMATE</h2>
+            <div class="admin-tag">Admin: cuteo</div>
+            <p>SYSTEM MONITOR / GAME BOOSTER</p>
+          </div>
+          <div class="profile-links">
+            <a class="profile-btn facebook" href="https://www.facebook.com/share/19QzvfXcpv/?mibextid=wwXIfr" target="_blank" rel="noopener">Facebook</a>
+            <a class="profile-btn zalo" href="https://zalo.me/0583516778">Zalo</a>
+            <a class="profile-btn tiktok" href="https://www.tiktok.com/@cuteo_120" target="_blank" rel="noopener">TikTok 1</a>
+            <a class="profile-btn tiktok" href="https://www.tiktok.com/@cuteo_120" target="_blank" rel="noopener">TikTok 2</a>
+          </div>
+        </article>
+      </section>
+
+      <!-- PREMIUM FUNCTION SECTION -->
+      <section class="premium-banner is-hidden" id="functionSection">
+        <div class="premium-head">
+          <div class="premium-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 18h16v2H4zM4 6l4 6 4-6 4 6 4-6v10H4z"/><defs><linearGradient id="crownGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00f0ff"/><stop offset="100%" stop-color="#8a2eff"/></linearGradient></defs></svg>
+          </div>
+          <div class="premium-text"><p class="premium-title">MODE PREMIUM ULTRA VIP</p></div>
+        </div>
+        <div class="feature-grid" id="featureGridContainer">
+          <div class="feature-item"><div><p class="feature-name">AimLock Head</p><p class="feature-sub">Bám Đầu</p></div><label class="toggle"><input type="checkbox" class="ft-toggle"/><span class="switch"></span></label></div>
+          <div class="feature-item"><div><p class="feature-name">Stability Assist</p><p class="feature-sub">Nhẹ Tâm</p></div><label class="toggle"><input type="checkbox" class="ft-toggle"/><span class="switch"></span></label></div>
+          <div class="feature-item"><div><p class="feature-name">Aim Hold</p><p class="feature-sub">Ghìm Tâm</p></div><label class="toggle"><input type="checkbox" class="ft-toggle"/><span class="switch"></span></label></div>
+          <div class="feature-item"><div><p class="feature-name">Aim LockDown</p><p class="feature-sub">Đầm Tâm</p></div><label class="toggle"><input type="checkbox" class="ft-toggle"/><span class="switch"></span></label></div>
+          <div class="feature-item"><div><p class="feature-name">Sensitivity Boost</p><p class="feature-sub">Nhạy</p></div><label class="toggle"><input type="checkbox" class="ft-toggle"/><span class="switch"></span></label></div>
+          <div class="feature-item"><div><p class="feature-name">Screen Boost</p><p class="feature-sub">Buff Màn</p></div><label class="toggle"><input type="checkbox" class="ft-toggle"/><span class="switch"></span></label></div>
+          <div class="feature-item"><div><p class="feature-name">HeadShot Fix</p><p class="feature-sub">Fix Lố Đầu</p></div><label class="toggle"><input type="checkbox" class="ft-toggle"/><span class="switch"></span></label></div>
+          <div class="feature-item"><div><p class="feature-name">Bullet Align</p><p class="feature-sub">Fix Lạc Đạn</p></div><label class="toggle"><input type="checkbox" class="ft-toggle"/><span class="switch"></span></label></div>
+          <div class="feature-item"><div><p class="feature-name">Shake Fix</p><p class="feature-sub">Fix Rung</p></div><label class="toggle"><input type="checkbox" class="ft-toggle"/><span class="switch"></span></label></div>
+        </div>
+      </section>
+
+      <!-- REALTIME MONITOR SECTION (HEAVY SPAM STREAM) -->
+      <section class="monitor-section is-hidden" id="monitorSection">
+        <div class="panel">
+          <div class="panelHead">
+            <div class="name">CPU & RAM Wave</div>
+            <div class="meta">
+              <span class="badge">FPS: <b id="mFps">90</b></span>
+              <span class="badge">Frame: <b id="mFrame">11.1</b> ms</span>
+              <span class="badge">CPU: <b id="mCpu">18</b>%</span>
+              <span class="badge">RAM: <b id="mRam">142 MB</b></span>
+            </div>
+          </div>
+          <div class="panelBody">
+            <div class="chartBox">
+              <div class="chartTop"><span>CPU Usage</span><span class="badge">Target: 90 FPS</span></div>
+              <canvas id="cpuCanvas"></canvas>
+            </div>
+            <div class="chartBox">
+              <div class="chartTop"><span>RAM Heap Used</span><span class="badge">Auto</span></div>
+              <canvas id="ramCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panelHead"><div class="name">Controls & Booster (Heavy Stream)</div></div>
+          <div class="panelBody">
+            <div class="controls">
+              <button id="btnLock" class="toggleOn">Lock 90 FPS: ON</button>
+              <button id="btnClearConsole">Xóa Console</button>
+              <button id="btnCleanRam">Dọn RAM (Spam)</button>
+              <button id="btnCleanCpu">Dọn CPU (Spam)</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panelHead"><div class="name">Console Stream</div><div class="meta"><span class="badge">Logs: <b id="mLogs">1</b></span></div></div>
+          <div class="panelBody">
+            <div id="consoleView" class="consoleView">[UNIMATE // CUTEO] Initialized - Ready for injection stream...</div>
+            <div class="consoleInput">
+              <input id="cmd" type="text" placeholder="Nhập lệnh JS..." autocomplete="off" />
+              <button id="btnExec">Run</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CROSSHAIR SECTION -->
+      <section class="crosshair-section is-hidden" id="crosshairSection">
+        <div class="premium-banner">
+          <div class="premium-head"><div class="premium-text"><p class="premium-title">CÀI ĐẶT TÂM ẢO</p></div></div>
+          <div class="feature-grid">
+            <div class="feature-item">
+              <div><p class="feature-name">Bật Tâm Ảo</p><p class="feature-sub">Hiển thị trên màn hình</p></div>
+              <label class="toggle"><input id="chToggle" type="checkbox"/><span class="switch"></span></label>
+            </div>
+            <div class="slider-box">
+              <div style="display:flex; justify-content:space-between;"><span style="font-size:0.78rem;">Kích thước</span><span style="font-size:0.78rem; color:var(--accent-cyan);"><span id="chSizeVal">12</span>px</span></div>
+              <input type="range" id="chSize" min="4" max="40" value="12"/>
+            </div>
+            <div class="slider-box">
+              <div style="display:flex; justify-content:space-between;"><span style="font-size:0.78rem;">Vị trí X (Ngang)</span><span style="font-size:0.78rem; color:var(--accent-cyan);"><span id="chXVal">50</span>%</span></div>
+              <input type="range" id="chX" min="0" max="100" value="50"/>
+            </div>
+            <div class="slider-box">
+              <div style="display:flex; justify-content:space-between;"><span style="font-size:0.78rem;">Vị trí Y (Dọc)</span><span style="font-size:0.78rem; color:var(--accent-cyan);"><span id="chYVal">50</span>%</span></div>
+              <input type="range" id="chY" min="0" max="100" value="50"/>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BOOSTER TAB SECTION -->
+      <section class="booster-section is-hidden" id="boosterSection">
+        <h2 class="booster-title">BOOSTER GAME</h2>
+        <div class="booster-item">
+          <img src="https://i.ibb.co/HTkB6GZB/IMG-8479.jpg" alt="FF"/>
+          <span>FREE FIRE</span>
+          <button class="red" onclick="triggerHeavySpam('FREE_FIRE_BOOST', 40)">BOOSTER</button>
+        </div>
+        <div class="booster-item">
+          <img src="https://i.ibb.co/jvgcHwTL/IMG-8478.jpg" alt="FFM"/>
+          <span>FREE FIRE MAX</span>
+          <button class="red" onclick="triggerHeavySpam('FREE_FIRE_MAX_BOOST', 40)">BOOSTER</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <a class="bottom-item is-active" data-target="homeSection">
+        <span class="bottom-icon"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg></span>
+        <span>Home</span>
+      </a>
+      <a class="bottom-item" data-target="functionSection">
+        <span class="bottom-icon"><svg viewBox="0 0 24 24"><path d="M9 3v3l-4 2 4 2v3l-7-3v-4zM15 3v3l4 2-4 2v3l7-3v-4zM9 15h6v6H9z"/></svg></span>
+        <span>Function</span>
+      </a>
+      <a class="bottom-item" data-target="monitorSection">
+        <span class="bottom-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-6l-2 3-2-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></span>
+        <span>Realtime</span>
+      </a>
+      <a class="bottom-item" data-target="crosshairSection">
+        <span class="bottom-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2"/></svg></span>
+        <span>Tâm Ảo</span>
+      </a>
+      <a class="bottom-item" data-target="boosterSection">
+        <span class="bottom-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+        <span>Booster</span>
+      </a>
+    </nav>
+
+    <!-- LIMIT MODAL -->
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal" id="limitModal">
+      <div class="modal-icon">⚠</div>
+      <div class="modal-title">Vượt Giới Hạn Kích Hoạt</div>
+      <div class="modal-text">Chỉ Cho Phép Bật 7 Chức Năng Tối Đa Đồng Thời.</div>
+    </div>
+
+    <!-- CROSSHAIR OVERLAY -->
+    <div id="crosshairOverlay">
+      <div class="ch-graphic" id="chGraphicEl">
+        <div class="ch-dot" id="chDotEl"></div>
+      </div>
+    </div>
+
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          const s = document.getElementById('splashScreen');
+          if(s) { s.classList.add('fade-out'); setTimeout(() => s.remove(), 600); }
+        }, 2200);
+      });
+
+      const sections = ['homeSection', 'functionSection', 'monitorSection', 'crosshairSection', 'boosterSection'];
+      document.querySelectorAll('.bottom-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          document.querySelectorAll('.bottom-item').forEach(el => el.classList.remove('is-active'));
+          item.classList.add('is-active');
+          const target = item.getAttribute('data-target');
+          sections.forEach(secId => {
+            document.getElementById(secId).classList.toggle('is-hidden', secId !== target);
+          });
+        });
+      });
+
+      const toggles = document.querySelectorAll('.ft-toggle');
+      const limitModal = document.getElementById('limitModal');
+      const modalBackdrop = document.getElementById('modalBackdrop');
+      toggles.forEach(chk => {
+        chk.addEventListener('change', () => {
+          const activeCount = Array.from(toggles).filter(t => t.checked).length;
+          if (activeCount > 7) {
+            chk.checked = false;
+            limitModal.style.display = 'block';
+            modalBackdrop.style.display = 'block';
+            setTimeout(() => {
+              limitModal.style.display = 'none';
+              modalBackdrop.style.display = 'none';
+            }, 1800);
+          } else {
+            triggerHeavySpam('TOGGLE_FEATURE', 10);
+          }
+        });
+      });
+
+      const chToggle = document.getElementById('chToggle');
+      const chOverlay = document.getElementById('crosshairOverlay');
+      const chSize = document.getElementById('chSize');
+      const chSizeVal = document.getElementById('chSizeVal');
+      const chX = document.getElementById('chX');
+      const chXVal = document.getElementById('chXVal');
+      const chY = document.getElementById('chY');
+      const chYVal = document.getElementById('chYVal');
+      const chDotEl = document.getElementById('chDotEl');
+      const chGraphicEl = document.getElementById('chGraphicEl');
+
+      function updateCrosshair() {
+        const size = chSize.value;
+        const x = chX.value;
+        const y = chY.value;
+        chSizeVal.textContent = size;
+        chXVal.textContent = x;
+        chYVal.textContent = y;
+        chDotEl.style.width = size + 'px';
+        chDotEl.style.height = size + 'px';
+        chGraphicEl.style.left = x + '%';
+        chGraphicEl.style.top = y + '%';
+        chOverlay.style.display = chToggle.checked ? 'block' : 'none';
+      }
+
+      chToggle.addEventListener('change', updateCrosshair);
+      chSize.addEventListener('input', updateCrosshair);
+      chX.addEventListener('input', updateCrosshair);
+      chY.addEventListener('input', updateCrosshair);
+
+      const cpuCanvas = document.getElementById('cpuCanvas');
+      const ramCanvas = document.getElementById('ramCanvas');
+      function initCanvasSize(c) {
+        if(!c) return;
+        c.width = c.parentElement.clientWidth || 300;
+        c.height = 100;
+      }
+      initCanvasSize(cpuCanvas);
+      initCanvasSize(ramCanvas);
+      window.addEventListener('resize', () => {
+        initCanvasSize(cpuCanvas);
+        initCanvasSize(ramCanvas);
+      });
+
+      function drawWave(canvas, val) {
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#050507';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for(let i=0; i<canvas.width; i+=8) {
+          const y = canvas.height/2 + (Math.sin(i*0.06 + Date.now()*0.005)*18 * (val/50));
+          if(i===0) ctx.moveTo(i, y); else ctx.lineTo(i, y);
+        }
+        ctx.stroke();
+      }
+
+      // Realtime loop cập nhật thông số và sóng
+      const mFps = document.getElementById('mFps');
+      const mFrame = document.getElementById('mFrame');
+      const mCpu = document.getElementById('mCpu');
+      const mRam = document.getElementById('mRam');
+
+      setInterval(() => {
+        const currentFps = Math.floor(Math.random() * 3) + 88;
+        const currentFrame = (1000 / currentFps).toFixed(1);
+        const currentCpu = Math.floor(Math.random() * 10) + 14;
+        const currentRam = Math.floor(Math.random() * 15) + 138;
+
+        if(mFps) mFps.textContent = currentFps;
+        if(mFrame) mFrame.textContent = currentFrame;
+        if(mCpu) mCpu.textContent = currentCpu;
+        if(mRam) mRam.textContent = currentRam + ' MB';
+
+        drawWave(cpuCanvas, currentCpu);
+        drawWave(ramCanvas, currentRam);
+      }, 300);
+
+      const consoleView = document.getElementById('consoleView');
+      const cmdInput = document.getElementById('cmd');
+      const logCountBadge = document.getElementById('mLogs');
+      let logCount = 1;
+
+      window.triggerHeavySpam = function(tag, count = 35) {
+        let idx = 0;
+        const interval = setInterval(() => {
+          if (idx >= count) {
+            clearInterval(interval);
+            consoleView.innerHTML += `<br><span style="color:#00f0ff">[${tag}] COMPLETED -> ALL PACKETS SYNCED (0x${Math.floor(Math.random()*65535).toString(16)})</span><br>`;
+            consoleView.scrollTop = consoleView.scrollHeight;
+            return;
+          }
+          const hexPtr = '0x' + Math.floor(Math.random() * 0xffffffff).toString(16).toUpperCase().padStart(8, '0');
+          const valHex = '0x' + Math.floor(Math.random() * 0xffff).toString(16).toUpperCase();
+          consoleView.innerHTML += `<br>[${tag}] stream_${idx} ptr=${hexPtr} val=${valHex} status=OK`;
+          if (consoleView.children.length > 150) {
+            consoleView.innerHTML = consoleView.innerHTML.split('<br>').slice(-80).join('<br>');
+          }
+          consoleView.scrollTop = consoleView.scrollHeight;
+          logCount++;
+          if(logCountBadge) logCountBadge.textContent = logCount;
+          idx++;
+        }, 35);
+      };
+
+      document.getElementById('btnExec').addEventListener('click', () => {
+        if(!cmdInput.value) return;
+        triggerHeavySpam('EXEC_JS', 15);
+        cmdInput.value = '';
+      });
+      document.getElementById('btnClearConsole').addEventListener('click', () => {
+        consoleView.innerHTML = '[UNIMATE // CUTEO] Console cleared.';
+        logCount = 1;
+        if(logCountBadge) logCountBadge.textContent = logCount;
+      });
+      document.getElementById('btnCleanRam').addEventListener('click', () => {
+        triggerHeavySpam('RAM_GC_FLUSH', 35);
+      });
+      document.getElementById('btnCleanCpu').addEventListener('click', () => {
+        triggerHeavySpam('CPU_CORE_BALANCER', 35);
+      });
+      document.getElementById('btnLock').addEventListener('click', (e) => {
+        e.target.classList.toggle('toggleOn');
+        const state = e.target.classList.contains('toggleOn') ? 'ON' : 'OFF';
+        e.target.textContent = `Lock 90 FPS: ${state}`;
+        triggerHeavySpam(`FPS_LOCK_${state}`, 20);
+      });
+    </script>
+  </body></html>
